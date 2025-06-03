@@ -48,7 +48,9 @@
                 <a href="{% url 'eliminar_producto' producto.pk %}" style="color:#e74c3c; margin-left:8px; font-size:14px;">Eliminar</a>
                 <br>
                 <span>{{ producto.descripcion }}</span><br>
-                <small>Categoría: {{ producto.categoria.nombre }}</small><br>
+                <small>
+                    Categoría: {{ producto.categoria.nombre|default:"Sin categoría" }}
+                </small><br>
                 <small>N° Serie: {{ producto.numero_serie }}</small><br>
                 <small>Ubicación: {{ producto.ubicacion }}</small><br>
                 <small>
@@ -61,6 +63,14 @@
                         {% endfor %}
                     {% else %}
                         No asignado
+                    {% endif %}
+                </small><br>
+                <small>
+                    <strong>Precio actual:</strong>
+                    {% if producto.precio_actual %}
+                        ${{ producto.precio_actual }}
+                    {% else %}
+                        Sin precio asignado
                     {% endif %}
                 </small><br>
                 <small>
@@ -78,15 +88,22 @@
                     {% endif %}
                 </small>
                 <br>
-                <!-- Historial de precios -->
-                <strong>Historial de precios:</strong><br>
-                <ul style="margin-top: 0; margin-bottom: 7px;">
-                    {% for h in producto.historial_precios.all %}
-                        <li>${{ h.precio }} ({{ h.fecha|date:"d/m/Y" }})</li>
-                    {% empty %}
-                        <li>Sin historial de precios.</li>
-                    {% endfor %}
-                </ul>
+                <!-- Botón historial -->
+                <button type="button"
+                    onclick="toggleHistorial('historial-{{ producto.pk }}', this)"
+                    style="margin-top:8px; margin-bottom:4px; background:#1976d2; color:#fff; border:none; border-radius:4px; padding:3px 10px; cursor:pointer;">
+                    Ver historial de precios
+                </button>
+                <div id="historial-{{ producto.pk }}" style="display:none; margin-bottom:10px;">
+                    <strong>Historial de precios:</strong>
+                    <ul style="margin-top: 0; margin-bottom: 7px;">
+                        {% for h in producto.historial_precios.all %}
+                            <li>${{ h.precio }} ({{ h.fecha|date:"d/m/Y" }})</li>
+                        {% empty %}
+                            <li>Sin historial de precios.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
         </div>
         {% empty %}
@@ -102,6 +119,17 @@
         </div>
 
     </div>
+    <script>
+        function toggleHistorial(id, btn) {
+            const div = document.getElementById(id);
+            if (div.style.display === "none" || div.style.display === "") {
+                div.style.display = "block";
+                btn.textContent = "Ocultar historial de precios";
+            } else {
+                div.style.display = "none";
+                btn.textContent = "Ver historial de precios";
+            }
+        }
+    </script>
 </body>
 </html>
-
