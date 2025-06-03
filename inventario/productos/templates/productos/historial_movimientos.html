@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Movimientos</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f3f3f3; }
+        .container { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0002; padding: 24px; }
+        h2 { text-align: center; color: #1976d2; }
+        table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+        th, td { padding: 10px 6px; border-bottom: 1px solid #ddd; text-align: center; }
+        th { background: #f0f4fa; color: #1976d2; }
+        tr:hover { background: #f9f9f9; }
+        .in { color: #27ae60; font-weight: bold; }
+        .out { color: #e74c3c; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Historial de Movimientos</h2>
+        <table>
+            <tr>
+                <th>Fecha</th>
+                <th>Producto</th>
+                <th>Tipo</th>
+                <th>Cantidad</th>
+                <th>Motivo</th>
+                <th>Usuario</th>
+            </tr>
+            {% for mov in movimientos %}
+            <tr>
+                <td>{{ mov.fecha|date:"d/m/Y H:i" }}</td>
+                <td>{{ mov.producto.nombre }}</td>
+                <td class="{% if mov.tipo == 'IN' %}in{% else %}out{% endif %}">
+                    {{ mov.get_tipo_display }}
+                </td>
+                <td>{{ mov.cantidad }}</td>
+                <td>{{ mov.motivo|default:"—" }}</td>
+                <td>{% if mov.usuario %}{{ mov.usuario.username }}{% else %}—{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No hay movimientos registrados.</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <a href="{% url 'lista_productos' %}">Volver al Inventario</a>
+    </div>
+</body>
+</html>

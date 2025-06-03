@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Eliminar Proveedor</title>
+    <link rel="stylesheet" href="{% static 'productos/styles.css' %}">
+</head>
+<body>
+<div class="container">
+    <h1>Eliminar Proveedor</h1>
+    <p>¿Estás seguro que deseas eliminar el proveedor <strong>{{ proveedor.nombre }}</strong>?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" style="background:#e74c3c; color:#fff; padding:8px 18px; border:none; border-radius:4px;">Sí, eliminar</button>
+        <a href="{% url 'lista_proveedores' %}" style="margin-left:18px;">Cancelar</a>
+    </form>
+</div>
+</body>
+</html>

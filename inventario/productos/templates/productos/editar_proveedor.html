@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if proveedor %}Editar{% else %}Agregar{% endif %} Proveedor</title>
+    <link rel="stylesheet" href="{% static 'productos/styles.css' %}">
+</head>
+<body>
+<div class="container">
+    <h1>{% if proveedor %}Editar{% else %}Agregar{% endif %} Proveedor</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" style="background:#1976d2; color:#fff; padding:8px 18px; border:none; border-radius:4px;">
+            {% if proveedor %}Guardar Cambios{% else %}Agregar Proveedor{% endif %}
+        </button>
+        <a href="{% url 'lista_proveedores' %}" style="margin-left:16px;">Cancelar</a>
+    </form>
+</div>
+</body>
+</html>
