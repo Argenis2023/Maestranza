@@ -3,134 +3,105 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario de Productos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'productos/styles.css' %}">
 </head>
 <body>
-    <div class="container">
-        <h1>Inventario de Productos</h1>
-
-        <!-- Buscador -->
-        <form method="get" action="." style="text-align:right; margin-bottom:14px;">
-            <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre, serie, ubicación o proveedor" style="padding:6px; border-radius:5px; border:1px solid #ddd; width: 300px;">
-            <button type="submit" style="padding:6px 14px; border:none; border-radius:5px; background:#1976d2; color:white;">Buscar</button>
-            {% if q %}
-                <a href="." style="margin-left:12px; color:#1976d2;">Limpiar</a>
-            {% endif %}
-        </form>
-
-        <!-- Productos en stock crítico -->
-        <div class="productos-criticos">
-            <h3 style="color:#e74c3c; margin-top:0;">Productos en stock crítico</h3>
-            {% if productos_criticos %}
-                {% for producto in productos_criticos %}
-                    <div class="producto-critico">
-                        {{ producto.nombre }} (Stock: {{ producto.stock }} / Mínimo: {{ producto.stock_minimo }})
-                    </div>
-                {% endfor %}
-            {% else %}
-                <span style="color: #2ecc71;">No hay productos críticos 👏</span>
-            {% endif %}
-        </div>
-
-        <!-- Listado de productos -->
-        {% for producto in productos %}
-        <div class="producto">
-            {% if producto.imagen_url %}
-                <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}">
-            {% else %}
-                <img src="https://via.placeholder.com/120x120?text=Sin+Imagen" alt="Sin Imagen">
-            {% endif %}
-            <div>
-                <strong>{{ producto.nombre }}</strong>
-                <!-- Botones de editar y eliminar -->
-                <a href="{% url 'editar_producto' producto.pk %}" style="color:#1976d2; margin-left:12px; font-size:14px;">Editar</a>
-                <a href="{% url 'eliminar_producto' producto.pk %}" style="color:#e74c3c; margin-left:8px; font-size:14px;">Eliminar</a>
-                <br>
-                <span>{{ producto.descripcion }}</span><br>
-                <small>
-                    Categoría: {{ producto.categoria.nombre|default:"Sin categoría" }}
-                </small><br>
-                <small>N° Serie: {{ producto.numero_serie }}</small><br>
-                <small>Ubicación: {{ producto.ubicacion }}</small><br>
-                <small>
-                    Proveedor(es):
-                    {% if producto.proveedores.all %}
-                        {% for prov in producto.proveedores.all %}
-                            {{ prov.nombre }}{% if not forloop.last %}, {% endif %}
-                        {% empty %}
-                            No asignado
-                        {% endfor %}
-                    {% else %}
-                        No asignado
-                    {% endif %}
-                </small><br>
-                <small>
-                    <strong>Precio actual:</strong>
-                    {% if producto.precio_actual %}
-                        ${{ producto.precio_actual }}
-                    {% else %}
-                        Sin precio asignado
-                    {% endif %}
-                </small><br>
-                <small>
-                    Stock:
-                    {% if producto.stock <= producto.stock_minimo %}
-                        <span class="stock-alerta">
-                            {{ producto.stock }} ⚠️
-                            <span class="stock-minimo">(Mínimo: {{ producto.stock_minimo }})</span>
-                        </span>
-                    {% else %}
-                        <span class="stock-ok">
-                            {{ producto.stock }}
-                            <span class="stock-minimo">(Mínimo: {{ producto.stock_minimo }})</span>
-                        </span>
-                    {% endif %}
-                </small>
-                <br>
-                <!-- Botón historial -->
-                <button type="button"
-                    onclick="toggleHistorial('historial-{{ producto.pk }}', this)"
-                    style="margin-top:8px; margin-bottom:4px; background:#1976d2; color:#fff; border:none; border-radius:4px; padding:3px 10px; cursor:pointer;">
-                    Ver historial de precios
-                </button>
-                <div id="historial-{{ producto.pk }}" style="display:none; margin-bottom:10px;">
-                    <strong>Historial de precios:</strong>
-                    <ul style="margin-top: 0; margin-bottom: 7px;">
-                        {% for h in producto.historial_precios.all %}
-                            <li>${{ h.precio }} ({{ h.fecha|date:"d/m/Y" }})</li>
-                        {% empty %}
-                            <li>Sin historial de precios.</li>
-                        {% endfor %}
-                    </ul>
-                </div>
+    <!-- HEADER FIJO -->
+    <header class="header-inventario">
+        <div class="header-content">
+            <div class="header-logo">
+                <i class="fa-solid fa-warehouse"></i> Maestranza Inventario
+            </div>
+            <form method="get" action="." class="header-buscador">
+                <input type="text" name="q" value="{{ q }}" placeholder="Buscar productos, serie, ubicación...">
+                <button type="submit"><i class="fa-solid fa-search"></i></button>
+                {% if q %}
+                    <a href="." class="limpiar-busqueda"><i class="fa-solid fa-xmark"></i></a>
+                {% endif %}
+            </form>
+            <div class="header-actions">
+                <a href="{% url 'registrar_movimiento' %}" title="Registrar movimiento"><i class="fa-solid fa-right-left"></i></a>
+                <a href="{% url 'historial_movimientos' %}" title="Ver historial"><i class="fa-solid fa-clock-rotate-left"></i></a>
+                <a href="{% url 'lista_proveedores' %}" title="Proveedores"><i class="fa-solid fa-truck"></i></a>
+                <a href="{% url 'lista_lotes' %}" title="Ver lotes"><i class="fa-solid fa-boxes-stacked"></i></a>
+                <a href="{% url 'lista_categorias' %}" title="Categorías"><i class="fa-solid fa-tags"></i></a>
             </div>
         </div>
-        {% empty %}
-        <p>No hay productos registrados.</p>
-        {% endfor %}
+    </header>
 
-        <!-- Botones inferiores -->
-        <div style="margin-top:18px;">
-            <a href="{% url 'registrar_movimiento' %}" style="margin-right:18px;">Registrar Entrada/Salida</a>
-            <a href="{% url 'historial_movimientos' %}" style="margin-right:18px;">Ver Historial de Movimientos</a>
-            <a href="{% url 'agregar_producto' %}" style="background:#1976d2; color:#fff; padding:6px 16px; border-radius:4px; text-decoration:none;">+ Agregar Producto</a>
-            <a href="{% url 'lista_categorias' %}" style="margin-left:20px;">Gestionar Categorías</a>
-            <a href="{% url 'lista_proveedores' %}" style="margin-left:20px;">Gestionar Proveedores</a>
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-inventario">
+        <div class="container">
+
+            <!-- Productos en stock crítico -->
+            <div class="productos-criticos">
+                <h3 style="color:#e74c3c; margin-top:0;">Productos en stock crítico</h3>
+                {% if productos_criticos %}
+                    <ul>
+                    {% for producto in productos_criticos %}
+                        <li style="color:#e74c3c;">⚠️ {{ producto.nombre }} (Stock: {{ producto.stock }} / Mínimo: {{ producto.stock_minimo }})</li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <span style="color: #2ecc71;">No hay productos críticos 👏</span>
+                {% endif %}
+            </div>
+
+            <!-- BOTÓN AGREGAR PRODUCTO -->
+            <div class="inventario-actions">
+                <a href="{% url 'agregar_producto' %}" class="btn-moderno"><i class="fa-solid fa-plus"></i> Agregar Producto</a>
+            </div>
+
+            <!-- GRID DE PRODUCTOS -->
+            <div class="productos-grid">
+                {% for producto in productos %}
+                <div class="card-producto">
+                    <div class="producto-img">
+                        {% if producto.imagen_url %}
+                            <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}">
+                        {% else %}
+                            <img src="https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-image-photo-paisaje-icono-plana-para-aplicaciones-y-sitios-web.jpg?ver=6" alt="Sin Imagen">
+                        {% endif %}
+                    </div>
+                    <div class="producto-info">
+                        <div class="producto-nombre">{{ producto.nombre }}</div>
+                        <div class="producto-categoria"><i class="fa-solid fa-tag"></i> {{ producto.categoria.nombre|default:"Sin categoría" }}</div>
+                        <div class="producto-serie"><i class="fa-solid fa-barcode"></i> {{ producto.numero_serie }}</div>
+                        <div class="producto-ubicacion"><i class="fa-solid fa-location-dot"></i> {{ producto.ubicacion }}</div>
+                        <div class="producto-proveedores">
+                            <i class="fa-solid fa-truck"></i>
+                            {% if producto.proveedores.all %}
+                                {% for prov in producto.proveedores.all %}
+                                    {{ prov.nombre }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    No asignado
+                                {% endfor %}
+                            {% else %}
+                                No asignado
+                            {% endif %}
+                        </div>
+                        <div class="producto-precio"><i class="fa-solid fa-dollar-sign"></i>
+                            {% if producto.precio_actual %} ${{ producto.precio_actual }} {% else %} Sin precio {% endif %}
+                        </div>
+                        <div class="producto-stock {% if producto.stock <= producto.stock_minimo %} stock-critico {% endif %}">
+                            <i class="fa-solid fa-box"></i> Stock: {{ producto.stock }}
+                            <span class="stock-minimo">(Mín.: {{ producto.stock_minimo }})</span>
+                            {% if producto.stock <= producto.stock_minimo %} <span class="stock-alerta">⚠️</span> {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <a href="{% url 'editar_producto' producto.pk %}" class="btn-moderno"><i class="fa-solid fa-pen"></i>Editar</a>
+                        <a href="{% url 'eliminar_producto' producto.pk %}" class="btn-moderno btn-rojo"><i class="fa-solid fa-trash"></i>Eliminar</a>
+                    </div>
+                </div>
+                {% empty %}
+                <p style="padding:32px;">No hay productos registrados.</p>
+                {% endfor %}
+            </div>
         </div>
-
-    </div>
-    <script>
-        function toggleHistorial(id, btn) {
-            const div = document.getElementById(id);
-            if (div.style.display === "none" || div.style.display === "") {
-                div.style.display = "block";
-                btn.textContent = "Ocultar historial de precios";
-            } else {
-                div.style.display = "none";
-                btn.textContent = "Ver historial de precios";
-            }
-        }
-    </script>
+    </main>
 </body>
 </html>

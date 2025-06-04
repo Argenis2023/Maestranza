@@ -3,18 +3,31 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Eliminar Proveedor</title>
+    <title>Eliminar {{ objeto_tipo }}</title>
     <link rel="stylesheet" href="{% static 'productos/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-<div class="container">
-    <h1>Eliminar Proveedor</h1>
-    <p>¿Estás seguro que deseas eliminar el proveedor <strong>{{ proveedor.nombre }}</strong>?</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" style="background:#e74c3c; color:#fff; padding:8px 18px; border:none; border-radius:4px;">Sí, eliminar</button>
-        <a href="{% url 'lista_proveedores' %}" style="margin-left:18px;">Cancelar</a>
-    </form>
-</div>
+    <main class="main-inventario">
+        <div class="container" style="max-width:430px;">
+            <h2 class="text-center" style="color:#e74c3c; margin-bottom: 18px; margin-top:10px;">
+                <i class="fa-solid fa-trash"></i> Eliminar {{ objeto_tipo }}
+            </h2>
+            <p style="text-align:center; margin-bottom: 30px;">
+                ¿Estás seguro que deseas eliminar {{ objeto_tipo|lower }} <strong>{{ objeto_nombre }}</strong>?
+            </p>
+            <form method="post" class="form-card" style="box-shadow:none;">
+                {% csrf_token %}
+                <div class="form-botones">
+                    <button type="submit" class="btn-moderno btn-rojo">
+                        <i class="fa-solid fa-trash"></i> Sí, eliminar
+                    </button>
+                    <a href="{% url 'lista_proveedores' %}" class="btn-moderno" style="background:#eee; color:#1976d2;">
+                         <i class="fa-solid fa-xmark"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
 </body>
 </html>

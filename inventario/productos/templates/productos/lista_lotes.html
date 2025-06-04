@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Listado de Lotes</title>
+    <link rel="stylesheet" href="{% static 'productos/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <main class="main-inventario">
+        <div class="container">
+            <h2 class="text-center" style="margin-bottom: 28px;">
+                <i class="fa-solid fa-boxes-stacked"></i> Listado de Lotes
+            </h2>
+            <div style="text-align:right; margin-bottom:14px;">
+                <a href="{% url 'crear_lote' %}" class="btn-moderno">
+                    <i class="fa-solid fa-box"></i> Agregar Lote
+                </a>
+            </div>
+
+            <h3 style="color:#c00; margin-top:32px;">Lotes Vencidos</h3>
+            {% if lotes_vencidos %}
+                <table>
+                    <tr>
+                        <th>Producto</th>
+                        <th>N° Lote</th>
+                        <th>Cantidad</th>
+                        <th>Fecha Vencimiento</th>
+                        <th>Acciones</th>
+                    </tr>
+                    {% for lote in lotes_vencidos %}
+                    <tr>
+                        <td>{{ lote.producto.nombre }}</td>
+                        <td>{{ lote.numero_lote }}</td>
+                        <td>{{ lote.cantidad }}</td>
+                        <td>{{ lote.fecha_vencimiento }}</td>
+                        <td>
+                            <div class="acciones-botones">
+                                <a href="{% url 'editar_lote' lote.pk %}" class="btn-moderno">
+                                    <i class="fa-solid fa-pen"></i> Editar
+                                </a>
+                                <a href="{% url 'eliminar_lote' lote.pk %}" class="btn-moderno btn-rojo">
+                                    <i class="fa-solid fa-trash"></i> Eliminar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p>No hay lotes vencidos.</p>
+            {% endif %}
+
+            <h3 style="color:#e67e22; margin-top:32px;">Lotes próximos a vencer (&lt; 30 días)</h3>
+            {% if lotes_proximos %}
+                <table>
+                    <tr>
+                        <th>Producto</th>
+                        <th>N° Lote</th>
+                        <th>Cantidad</th>
+                        <th>Fecha Vencimiento</th>
+                        <th>Días restantes</th>
+                        <th>Acciones</th>
+                    </tr>
+                    {% for lote in lotes_proximos %}
+                    <tr>
+                        <td>{{ lote.producto.nombre }}</td>
+                        <td>{{ lote.numero_lote }}</td>
+                        <td>{{ lote.cantidad }}</td>
+                        <td>{{ lote.fecha_vencimiento }}</td>
+                        <td>{{ lote.dias_para_vencer }}</td>
+                        <td>
+                            <div class="acciones-botones">
+                                <a href="{% url 'editar_lote' lote.pk %}" class="btn-moderno">
+                                    <i class="fa-solid fa-pen"></i> Editar
+                                </a>
+                                <a href="{% url 'eliminar_lote' lote.pk %}" class="btn-moderno btn-rojo">
+                                    <i class="fa-solid fa-trash"></i> Eliminar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p>No hay lotes próximos a vencer.</p>
+            {% endif %}
+
+            <h3 style="margin-top:32px;">Lotes en estado OK</h3>
+            {% if lotes_ok %}
+                <table>
+                    <tr>
+                        <th>Producto</th>
+                        <th>N° Lote</th>
+                        <th>Cantidad</th>
+                        <th>Fecha Vencimiento</th>
+                        <th>Acciones</th>
+                    </tr>
+                    {% for lote in lotes_ok %}
+                    <tr>
+                        <td>{{ lote.producto.nombre }}</td>
+                        <td>{{ lote.numero_lote }}</td>
+                        <td>{{ lote.cantidad }}</td>
+                        <td>{{ lote.fecha_vencimiento }}</td>
+                        <td>
+                            <div class="acciones-botones">
+                                <a href="{% url 'editar_lote' lote.pk %}" class="btn-moderno">
+                                    <i class="fa-solid fa-pen"></i> Editar
+                                </a>
+                                <a href="{% url 'eliminar_lote' lote.pk %}" class="btn-moderno btn-rojo">
+                                    <i class="fa-solid fa-trash"></i> Eliminar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p>No hay lotes activos.</p>
+            {% endif %}
+
+            <div style="text-align:right;">
+                <a href="{% url 'lista_productos' %}" class="btn-moderno" style="margin-top:18px;">
+                    <i class="fa-solid fa-arrow-left"></i> Volver al Inventario
+                </a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -5,33 +5,34 @@
     <meta charset="UTF-8">
     <title>Registrar Movimiento</title>
     <link rel="stylesheet" href="{% static 'productos/styles.css' %}">
-    <style>
-        body { font-family: Arial, sans-serif; background: #f3f3f3; }
-        .container { max-width: 400px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0002; padding: 24px; }
-        h2 { text-align: center; color: #1976d2; }
-        form label { display: block; margin-top: 10px; }
-        form input, form select { width: 100%; padding: 6px; margin-top: 3px; }
-        button { margin-top: 18px; width: 100%; padding: 8px; background: #1976d2; color: #fff; border: none; border-radius: 4px; }
-        .success { background: #dff0d8; color: #3c763d; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center;}
-        .error { background: #f8d7da; color: #a94442; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center;}
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <h2>Registrar Movimiento</h2>
-        {% if messages %}
-            {% for message in messages %}
-                <div class="{% if message.tags %}{{ message.tags }}{% endif %}">
-                    {{ message }}
+    <main class="main-inventario">
+        <div class="container" style="max-width:520px;">
+            <h2 class="text-center" style="color:#1976d2; margin-bottom: 24px; margin-top:10px;">
+                <i class="fa-solid fa-right-left"></i> Registrar Movimiento
+            </h2>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            <form method="post" class="form-card">
+                {% csrf_token %}
+                <div class="campos-form">
+                    {{ form.as_p }}
                 </div>
-            {% endfor %}
-        {% endif %}
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Guardar</button>
-        </form>
-        <a href="{% url 'lista_productos' %}">Volver al Inventario</a>
-    </div>
+                <div class="form-botones">
+                    <button type="submit" class="btn-moderno">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar
+                    </button>
+                    <a href="{% url 'lista_productos' %}" class="btn-moderno" style="background:#1976d2; color:#1976d2;">
+                        <i class="fa-solid fa-arrow-left"></i> Volver al Inventario
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
 </body>
 </html>

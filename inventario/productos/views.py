@@ -1,9 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from django.contrib import messages
+from datetime import date, timedelta
 
-from .models import Categoria, Producto, Proveedor, Movimiento, HistorialPrecio
-from .forms import MovimientoForm, ProductoForm, ProveedorForm
+from .models import Categoria, Producto, Proveedor, Movimiento, HistorialPrecio, Lote
+from .forms import MovimientoForm, ProductoForm, ProveedorForm, LoteForm, CategoriaForm
+from django.core.mail import send_mail
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Lote
+from .forms import LoteForm
 
 # -------- PRODUCTOS --------
 
@@ -78,7 +84,40 @@ def registrar_movimiento(request):
         if form.is_valid():
             movimiento = form.save(commit=False)
             movimiento.usuario = request.user
+
+            # SOLO si es salida, descuenta del lote seleccionado
+            if movimiento.tipo == 'OUT':
+                lote = form.cleaned_data['lote']
+                if not lote:
+                    form.add_error('lote', 'Debes seleccionar el lote para la salida.')
+                    return render(request, 'productos/registrar_movimiento.html', {'form': form})
+
+                if movimiento.cantidad > lote.cantidad:
+                    form.add_error('cantidad', f'Solo hay {lote.cantidad} unidades en el lote seleccionado.')
+                    return render(request, 'productos/registrar_movimiento.html', {'form': form})
+
+                # Descontar del lote
+                lote.cantidad -= movimiento.cantidad
+                lote.save()
+
+            elif movimiento.tipo == 'IN':
+                # Puedes dejar la gestión de lotes manual para entradas, o expandir esta lógica
+                pass
+
             movimiento.save()
+
+            producto = movimiento.producto
+            # Alerta de stock crítico por email
+            if producto.stock <= producto.stock_minimo:
+                send_mail(
+                    'Alerta de stock crítico',
+                    f'El producto "{producto.nombre}" está en stock crítico (stock: {producto.stock})',
+                    'Maestrana Inventario',
+                    ['maestranzainventario@gmail.com'],
+                    fail_silently=False,
+                )
+
+            messages.success(request, "Movimiento registrado correctamente.")
             return redirect('lista_productos')
     else:
         form = MovimientoForm()
@@ -125,33 +164,32 @@ def eliminar_proveedor(request, pk):
         return redirect('lista_proveedores')
     return render(request, 'productos/eliminar_proveedor.html', {'proveedor': proveedor})
 
-from django.core.mail import send_mail
+# -------- LOTES --------
 
-def registrar_movimiento(request):
+def crear_lote(request):
     if request.method == 'POST':
-        form = MovimientoForm(request.POST)
+        form = LoteForm(request.POST)
         if form.is_valid():
-            movimiento = form.save(commit=False)
-            movimiento.usuario = request.user
-            movimiento.save()
-
-            producto = movimiento.producto
-            # Verifica si el producto quedó en stock crítico
-            if producto.stock <= producto.stock_minimo:
-                send_mail(
-                    'Alerta de stock crítico',
-                    f'El producto "{producto.nombre}" está en stock crítico (stock: {producto.stock})',
-                    'Maestrana Inventario',  # Remitente
-                    ['maestranzainventario@gmail.com'],  # Cambia por tu correo real
-                    fail_silently=False,
-                )
-
-            return redirect('lista_productos')
+            form.save()
+            messages.success(request, "Lote agregado correctamente.")
+            return redirect('lista_lotes')
     else:
-        form = MovimientoForm()
-    return render(request, 'productos/registrar_movimiento.html', {'form': form})
+        form = LoteForm()
+    return render(request, 'productos/crear_lote.html', {'form': form})
 
-from .forms import CategoriaForm
+def lista_lotes(request):
+    hoy = date.today()
+    proximos = hoy + timedelta(days=30)
+    lotes_vencidos = Lote.objects.filter(fecha_vencimiento__lt=hoy)
+    lotes_proximos = Lote.objects.filter(fecha_vencimiento__range=[hoy, proximos])
+    lotes_ok = Lote.objects.filter(fecha_vencimiento__gt=proximos)
+    return render(request, 'productos/lista_lotes.html', {
+        'lotes_vencidos': lotes_vencidos,
+        'lotes_proximos': lotes_proximos,
+        'lotes_ok': lotes_ok,
+    })
+
+# -------- CATEGORIAS --------
 
 def lista_categorias(request):
     categorias = Categoria.objects.all()
@@ -187,3 +225,38 @@ def eliminar_categoria(request, pk):
         messages.success(request, "Categoría eliminada correctamente.")
         return redirect('lista_categorias')
     return render(request, 'productos/eliminar_categoria.html', {'categoria': categoria})
+
+def crear_lote(request):
+    producto_id = request.GET.get('producto')
+    initial = {}
+    if producto_id:
+        initial['producto'] = producto_id
+    if request.method == 'POST':
+        form = LoteForm(request.POST, initial=initial)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Lote agregado correctamente.")
+            return redirect('lista_lotes')
+    else:
+        form = LoteForm(initial=initial)
+    return render(request, 'productos/crear_lote.html', {'form': form})
+
+  # Debes tener un formulario para Lote
+
+def editar_lote(request, pk):
+    lote = get_object_or_404(Lote, pk=pk)
+    if request.method == 'POST':
+        form = LoteForm(request.POST, instance=lote)
+        if form.is_valid():
+            form.save()
+            return redirect('lista_lotes')
+    else:
+        form = LoteForm(instance=lote)
+    return render(request, 'productos/editar_lote.html', {'form': form, 'lote': lote})
+
+def eliminar_lote(request, pk):
+    lote = get_object_or_404(Lote, pk=pk)
+    if request.method == 'POST':
+        lote.delete()
+        return redirect('lista_lotes')
+    return render(request, 'productos/eliminar_lote.html', {'lote': lote})

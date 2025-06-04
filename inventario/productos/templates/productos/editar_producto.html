@@ -3,18 +3,41 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Editar Producto</title>
+    <title>{% if producto %}Editar Producto{% else %}Agregar Producto{% endif %}</title>
     <link rel="stylesheet" href="{% static 'productos/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-<div class="container">
-    <h1>Editar Producto: {{ producto.nombre }}</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" style="background:#1976d2; color:#fff; padding:8px 18px; border:none; border-radius:4px;">Guardar Cambios</button>
-        <a href="{% url 'lista_productos' %}" style="margin-left:16px;">Cancelar</a>
-    </form>
-</div>
+    <main class="main-inventario">
+        <div class="container" style="max-width:520px;">
+            <h2 class="text-center" style="color:#1976d2; margin-bottom: 22px; margin-top:10px;">
+                {% if producto %}
+                    <i class="fa-solid fa-pen"></i> Editar Producto: {{ producto.nombre }}
+                {% else %}
+                    <i class="fa-solid fa-plus"></i> Agregar Producto
+                {% endif %}
+            </h2>
+            <form method="post" class="form-card">
+                {% csrf_token %}
+                <div class="campos-form">
+                    {{ form.as_p }}
+                </div>
+                <div class="form-botones">
+                    {% if producto %}
+                        <button type="submit" class="btn-moderno">
+                            <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
+                        </button>
+                    {% else %}
+                        <button type="submit" class="btn-moderno">
+                            <i class="fa-solid fa-plus"></i> Agregar Producto
+                        </button>
+                    {% endif %}
+                    <a href="{% url 'lista_productos' %}" class="btn-moderno" style="background:#eee; color:#1976d2;">
+                        <i class="fa-solid fa-xmark"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
 </body>
 </html>

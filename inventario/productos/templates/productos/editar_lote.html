@@ -3,15 +3,15 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>{% if categoria %}Editar Categoría{% else %}Agregar Categoría{% endif %}</title>
+    <title>Editar Lote</title>
     <link rel="stylesheet" href="{% static 'productos/styles.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <main class="main-inventario">
-        <div class="container" style="max-width:480px;">
+        <div class="container" style="max-width:500px;">
             <h2 class="text-center" style="color:#1976d2; margin-bottom: 24px; margin-top:10px;">
-                {% if categoria %}<i class="fa-solid fa-tags"></i> Editar Categoría{% else %}<i class="fa-solid fa-tag"></i> Agregar Categoría{% endif %}
+                <i class="fa-solid fa-box"></i> Editar Lote
             </h2>
             <form method="post" class="form-card">
                 {% csrf_token %}
@@ -20,9 +20,9 @@
                 </div>
                 <div class="form-botones">
                     <button type="submit" class="btn-moderno">
-                        {% if categoria %}<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios{% else %}<i class="fa-solid fa-plus"></i> Agregar Categoría{% endif %}
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
                     </button>
-                    <a href="{% url 'lista_categorias' %}" class="btn-moderno" style="background:#eee; color:#1976d2;">
+                    <a href="{% url 'lista_lotes' %}" class="btn-moderno btn-rojo">
                         <i class="fa-solid fa-xmark"></i> Cancelar
                     </a>
                 </div>

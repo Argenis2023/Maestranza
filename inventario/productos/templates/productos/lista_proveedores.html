@@ -5,32 +5,58 @@
     <meta charset="UTF-8">
     <title>Proveedores</title>
     <link rel="stylesheet" href="{% static 'productos/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-<div class="container">
-    <h1>Proveedores</h1>
-    <a href="{% url 'agregar_proveedor' %}" style="background:#1976d2; color:#fff; padding:6px 16px; border-radius:4px; text-decoration:none; margin-bottom:16px; display:inline-block;">+ Agregar Proveedor</a>
-    <table style="width:100%; margin-top:18px;">
-        <tr>
-            <th>Nombre</th><th>Contacto</th><th>Teléfono</th><th>Email</th><th>Dirección</th><th>Acciones</th>
-        </tr>
-        {% for prov in proveedores %}
-        <tr>
-            <td>{{ prov.nombre }}</td>
-            <td>{{ prov.contacto }}</td>
-            <td>{{ prov.telefono }}</td>
-            <td>{{ prov.email }}</td>
-            <td>{{ prov.direccion }}</td>
-            <td>
-                <a href="{% url 'editar_proveedor' prov.pk %}">Editar</a> |
-                <a href="{% url 'eliminar_proveedor' prov.pk %}" style="color:#e74c3c;">Eliminar</a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="6">No hay proveedores registrados.</td></tr>
-        {% endfor %}
-    </table>
-    <a href="{% url 'lista_productos' %}" style="display:inline-block; margin-top:18px;">Volver al Inventario</a>
-</div>
+    <main class="main-inventario">
+        <div class="container">
+            <h2 class="text-center" style="margin-bottom: 28px;">
+                <i class="fa-solid fa-truck"></i> Proveedores
+            </h2>
+            <div style="text-align:right; margin-bottom:16px;">
+                <a href="{% url 'agregar_proveedor' %}" class="btn-moderno" style="background:#43a047;">
+                    <i class="fa-solid fa-plus"></i> Agregar Proveedor
+                </a>
+            </div>
+            <table>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Contacto</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>Dirección</th>
+                    <th>Acciones</th>
+                </tr>
+                {% for prov in proveedores %}
+                <tr>
+                    <td>{{ prov.nombre }}</td>
+                    <td>{{ prov.contacto }}</td>
+                    <td>{{ prov.telefono }}</td>
+                    <td>{{ prov.email }}</td>
+                    <td>{{ prov.direccion }}</td>
+                    <td>
+                        <div class="acciones-botones">
+                            <a href="{% url 'editar_proveedor' prov.pk %}" class="btn-moderno">
+                                <i class="fa-solid fa-pen"></i> Editar
+                            </a>
+                            <a href="{% url 'eliminar_proveedor' prov.pk %}" class="btn-moderno btn-rojo">
+                                <i class="fa-solid fa-trash"></i> Eliminar
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No hay proveedores registrados.</td>
+                </tr>
+                {% endfor %}
+            </table>
+            <div style="text-align:right;">
+                <a href="{% url 'lista_productos' %}" class="btn-moderno" style="margin-top:18px;">
+                    <i class="fa-solid fa-arrow-left"></i> Volver al Inventario
+                </a>
+            </div>
+        </div>
+    </main>
 </body>
 </html>

@@ -3,20 +3,31 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>{% if categoria %}Editar{% else %}Agregar{% endif %} Categoría</title>
+    <title>{% if categoria %}Editar Categoría{% else %}Agregar Categoría{% endif %}</title>
     <link rel="stylesheet" href="{% static 'productos/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-<div class="container">
-    <h1>{% if categoria %}Editar{% else %}Agregar{% endif %} Categoría</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" style="background:#1976d2; color:#fff; padding:8px 18px; border:none; border-radius:4px;">
-            {% if categoria %}Guardar Cambios{% else %}Agregar Categoría{% endif %}
-        </button>
-        <a href="{% url 'lista_categorias' %}" style="margin-left:16px;">Cancelar</a>
-    </form>
-</div>
+    <main class="main-inventario">
+        <div class="container" style="max-width:480px;">
+            <h2 class="text-center" style="color:#1976d2; margin-bottom: 24px; margin-top:10px;">
+                {% if categoria %}<i class="fa-solid fa-tags"></i> Editar Categoría{% else %}<i class="fa-solid fa-tag"></i> Agregar Categoría{% endif %}
+            </h2>
+            <form method="post" class="form-card">
+                {% csrf_token %}
+                <div class="campos-form">
+                    {{ form.as_p }}
+                </div>
+                <div class="form-botones">
+                    <button type="submit" class="btn-moderno">
+                        {% if categoria %}<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios{% else %}<i class="fa-solid fa-plus"></i> Agregar Categoría{% endif %}
+                    </button>
+                    <a href="{% url 'lista_categorias' %}" class="btn-moderno" style="background:#eee; color:#1976d2;">
+                        <i class="fa-solid fa-xmark"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
 </body>
 </html>

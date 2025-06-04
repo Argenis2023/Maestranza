@@ -3,18 +3,18 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Eliminar {{ objeto_tipo }}</title>
+    <title>Eliminar Lote</title>
     <link rel="stylesheet" href="{% static 'productos/styles.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <main class="main-inventario">
-        <div class="container" style="max-width:430px;">
+        <div class="container" style="max-width:440px;">
             <h2 class="text-center" style="color:#e74c3c; margin-bottom: 18px; margin-top:10px;">
-                <i class="fa-solid fa-trash"></i> Eliminar {{ objeto_tipo }}
+                <i class="fa-solid fa-trash"></i> Eliminar Lote
             </h2>
             <p style="text-align:center; margin-bottom: 30px;">
-                ¿Estás seguro que deseas eliminar {{ objeto_tipo|lower }} <strong>{{ objeto_nombre }}</strong>?
+                ¿Estás seguro de que deseas eliminar el lote <b>{{ lote.numero_lote }}</b> del producto <b>{{ lote.producto.nombre }}</b>?<br>Esta acción no se puede deshacer.
             </p>
             <form method="post" class="form-card" style="box-shadow:none;">
                 {% csrf_token %}
@@ -22,7 +22,7 @@
                     <button type="submit" class="btn-moderno btn-rojo">
                         <i class="fa-solid fa-trash"></i> Sí, eliminar
                     </button>
-                    <a href="{% url 'lista_productos' %}" class="btn-moderno" style="background:#eee; color:#1976d2;">
+                    <a href="{% url 'lista_lotes' %}" class="btn-moderno" style="background:#eee; color:#1976d2;">
                         <i class="fa-solid fa-xmark"></i> Cancelar
                     </a>
                 </div>

@@ -71,3 +71,21 @@ class HistorialPrecio(models.Model):
 
     def __str__(self):
         return f"{self.producto.nombre} - ${self.precio} ({self.fecha:%d/%m/%Y})"
+
+from datetime import date
+
+class Lote(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='lotes')
+    numero_lote = models.CharField(max_length=50)
+    cantidad = models.PositiveIntegerField()
+    fecha_vencimiento = models.DateField()
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    def esta_vencido(self):
+        return self.fecha_vencimiento < date.today()
+    
+    def dias_para_vencer(self):
+        return (self.fecha_vencimiento - date.today()).days
+
+    def __str__(self):
+        return f"Lote {self.numero_lote} - {self.producto.nombre} ({self.cantidad} unidades)"

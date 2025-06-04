@@ -8,6 +8,8 @@ from .views import lista_proveedores
 from .views import agregar_proveedor, editar_proveedor, eliminar_proveedor
 from .views import lista_categorias
 from .views import agregar_categoria, editar_categoria, eliminar_categoria
+from . import views
+
 
 
 urlpatterns = [
@@ -25,4 +27,9 @@ urlpatterns = [
     path('categorias/agregar/', agregar_categoria, name='agregar_categoria'),
     path('categorias/editar/<int:pk>/', editar_categoria, name='editar_categoria'),
     path('categorias/eliminar/<int:pk>/', eliminar_categoria, name='eliminar_categoria'),
+    path('lotes/', views.lista_lotes, name='lista_lotes'),
+    path('lotes/crear/', views.crear_lote, name='crear_lote'),
+    path('lotes/editar/<int:pk>/', views.editar_lote, name='editar_lote'),
+    path('lotes/eliminar/<int:pk>/', views.eliminar_lote, name='eliminar_lote'),
+
 ]
