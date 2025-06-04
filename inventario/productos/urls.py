@@ -6,6 +6,8 @@ from .views import agregar_producto, editar_producto
 from .views import eliminar_producto
 from .views import lista_proveedores
 from .views import agregar_proveedor, editar_proveedor, eliminar_proveedor
+from .views import lista_categorias
+from .views import agregar_categoria, editar_categoria, eliminar_categoria
 
 
 urlpatterns = [
@@ -19,5 +21,8 @@ urlpatterns = [
     path('proveedores/agregar/', agregar_proveedor, name='agregar_proveedor'),
     path('proveedores/editar/<int:pk>/', editar_proveedor, name='editar_proveedor'),
     path('proveedores/eliminar/<int:pk>/', eliminar_proveedor, name='eliminar_proveedor'),
-
+    path('categorias/', lista_categorias, name='lista_categorias'),
+    path('categorias/agregar/', agregar_categoria, name='agregar_categoria'),
+    path('categorias/editar/<int:pk>/', editar_categoria, name='editar_categoria'),
+    path('categorias/eliminar/<int:pk>/', eliminar_categoria, name='eliminar_categoria'),
 ]

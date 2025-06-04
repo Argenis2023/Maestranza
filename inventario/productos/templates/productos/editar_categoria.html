@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if categoria %}Editar{% else %}Agregar{% endif %} Categoría</title>
+    <link rel="stylesheet" href="{% static 'productos/styles.css' %}">
+</head>
+<body>
+<div class="container">
+    <h1>{% if categoria %}Editar{% else %}Agregar{% endif %} Categoría</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" style="background:#1976d2; color:#fff; padding:8px 18px; border:none; border-radius:4px;">
+            {% if categoria %}Guardar Cambios{% else %}Agregar Categoría{% endif %}
+        </button>
+        <a href="{% url 'lista_categorias' %}" style="margin-left:16px;">Cancelar</a>
+    </form>
+</div>
+</body>
+</html>

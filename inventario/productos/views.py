@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from django.contrib import messages
 
-from .models import Producto, Proveedor, Movimiento, HistorialPrecio
+from .models import Categoria, Producto, Proveedor, Movimiento, HistorialPrecio
 from .forms import MovimientoForm, ProductoForm, ProveedorForm
 
 # -------- PRODUCTOS --------
@@ -150,3 +150,40 @@ def registrar_movimiento(request):
     else:
         form = MovimientoForm()
     return render(request, 'productos/registrar_movimiento.html', {'form': form})
+
+from .forms import CategoriaForm
+
+def lista_categorias(request):
+    categorias = Categoria.objects.all()
+    return render(request, 'productos/lista_categorias.html', {'categorias': categorias})
+
+def agregar_categoria(request):
+    if request.method == 'POST':
+        form = CategoriaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Categoría agregada correctamente.")
+            return redirect('lista_categorias')
+    else:
+        form = CategoriaForm()
+    return render(request, 'productos/agregar_categoria.html', {'form': form})
+
+def editar_categoria(request, pk):
+    categoria = get_object_or_404(Categoria, pk=pk)
+    if request.method == 'POST':
+        form = CategoriaForm(request.POST, instance=categoria)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Categoría editada correctamente.")
+            return redirect('lista_categorias')
+    else:
+        form = CategoriaForm(instance=categoria)
+    return render(request, 'productos/editar_categoria.html', {'form': form, 'categoria': categoria})
+
+def eliminar_categoria(request, pk):
+    categoria = get_object_or_404(Categoria, pk=pk)
+    if request.method == 'POST':
+        categoria.delete()
+        messages.success(request, "Categoría eliminada correctamente.")
+        return redirect('lista_categorias')
+    return render(request, 'productos/eliminar_categoria.html', {'categoria': categoria})
