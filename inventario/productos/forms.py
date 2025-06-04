@@ -3,7 +3,7 @@ from .models import Movimiento, Producto, Proveedor, Categoria, Lote
 
 class MovimientoForm(forms.ModelForm):
     lote = forms.ModelChoiceField(
-        queryset=Lote.objects.none(), 
+        queryset=Lote.objects.all(), 
         required=False, 
         label="Lote (solo para salidas)"
     )

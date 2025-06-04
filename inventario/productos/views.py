@@ -85,40 +85,37 @@ def registrar_movimiento(request):
             movimiento = form.save(commit=False)
             movimiento.usuario = request.user
 
-            # SOLO si es salida, descuenta del lote seleccionado
-            if movimiento.tipo == 'OUT':
-                lote = form.cleaned_data['lote']
-                if not lote:
-                    form.add_error('lote', 'Debes seleccionar el lote para la salida.')
-                    return render(request, 'productos/registrar_movimiento.html', {'form': form})
+            try:
+                # SOLO si es salida, descuenta del lote seleccionado
+                if movimiento.tipo == 'OUT':
+                    lote = form.cleaned_data['lote']
+                    if lote and movimiento.cantidad > lote.cantidad:
+                        form.add_error('cantidad', f'Solo hay {lote.cantidad} unidades en el lote seleccionado.')
+                        return render(request, 'productos/registrar_movimiento.html', {'form': form})
 
-                if movimiento.cantidad > lote.cantidad:
-                    form.add_error('cantidad', f'Solo hay {lote.cantidad} unidades en el lote seleccionado.')
-                    return render(request, 'productos/registrar_movimiento.html', {'form': form})
+                    if lote:
+                        lote.cantidad -= movimiento.cantidad
+                        lote.save()
 
-                # Descontar del lote
-                lote.cantidad -= movimiento.cantidad
-                lote.save()
+                elif movimiento.tipo == 'IN':
+                    pass
 
-            elif movimiento.tipo == 'IN':
-                # Puedes dejar la gestión de lotes manual para entradas, o expandir esta lógica
-                pass
+                movimiento.save()
 
-            movimiento.save()
+                producto = movimiento.producto
+                if producto.stock <= producto.stock_minimo:
+                    send_mail(
+                        'Alerta de stock crítico',
+                        f'El producto "{producto.nombre}" está en stock crítico (stock: {producto.stock})',
+                        'Maestrana Inventario',
+                        ['maestranzainventario@gmail.com', 'fide.rodriguez@duocuc.cl'],
+                        fail_silently=False,
+                    )
 
-            producto = movimiento.producto
-            # Alerta de stock crítico por email
-            if producto.stock <= producto.stock_minimo:
-                send_mail(
-                    'Alerta de stock crítico',
-                    f'El producto "{producto.nombre}" está en stock crítico (stock: {producto.stock})',
-                    'Maestrana Inventario',
-                    ['maestranzainventario@gmail.com'],
-                    fail_silently=False,
-                )
-
-            messages.success(request, "Movimiento registrado correctamente.")
-            return redirect('lista_productos')
+                messages.success(request, "Movimiento registrado correctamente.")
+                return redirect('lista_productos')
+            except ValueError as e:
+                messages.error(request, str(e))  # <-- Aquí capturas el error
     else:
         form = MovimientoForm()
     return render(request, 'productos/registrar_movimiento.html', {'form': form})
