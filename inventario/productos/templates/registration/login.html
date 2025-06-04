@@ -1,0 +1,44 @@
+<!-- templates/registration/login.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar sesión</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f3f3f3; }
+        .login-container {
+            max-width: 350px;
+            margin: 60px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px #0002;
+            padding: 26px 30px 20px 30px;
+        }
+        h2 { text-align: center; margin-bottom: 22px; color: #1976d2; }
+        label { display: block; margin-bottom: 6px; color: #333; }
+        input[type="text"], input[type="password"] {
+            width: 100%; padding: 9px; border-radius: 5px; border: 1px solid #bbb; margin-bottom: 16px;
+        }
+        button { width: 100%; background: #1976d2; color: #fff; border: none; border-radius: 5px; padding: 11px; font-size: 16px; cursor: pointer;}
+        .helptext, .errorlist { color: #e74c3c; font-size: 13px; }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <h2>Iniciar sesión</h2>
+    {% if form.errors %}
+        <div class="errorlist">Usuario o contraseña incorrectos.</div>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <label for="id_username">Usuario</label>
+        {{ form.username }}
+
+        <label for="id_password">Contraseña</label>
+        {{ form.password }}
+
+        <button type="submit">Entrar</button>
+    </form>
+</div>
+</body>
+</html>

@@ -3,5 +3,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('productos.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),  # <- Esta línea es fundamental para login/logout/reset
+    path('', include('productos.urls')),                     # <- Tu app principal
 ]

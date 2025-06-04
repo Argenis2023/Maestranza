@@ -311,7 +311,7 @@ td img {
     margin-bottom: 25px;
 }
 .card-producto {
-    background: #fafdff;
+    background: #b7daf1;
     border-radius: 18px;
     box-shadow: 0 4px 18px #1976d216;
     padding: 18px 18px 15px 18px;
@@ -421,3 +421,67 @@ td img {
 .mt-1 { margin-top: 1em !important; }
 .mt-2 { margin-top: 2em !important; }
 .mt-3 { margin-top: 3em !important; }
+
+/* Botón de logout: igual que los enlaces de .header-actions */
+.header-actions .icon-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-left: 17px;
+    font-size: 1.28em;
+    opacity: 0.82;
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 0.16s;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.header-actions .icon-btn:hover {
+    opacity: 1;
+}
+
+/* Específico para el ícono de logout (puedes cambiar el color aquí si quieres otro distinto) */
+.header-actions .logout-btn i {
+    color: #e74c3c;
+}
+
+.header-actions .logout-btn:hover i {
+    color: #c0392b;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center; /* ¡Asegura alineación vertical! */
+    gap: 0; /* Puedes ajustar el espacio si quieres, por defecto los links ya tienen margin */
+}
+
+/* Estilos para que el button (logout) se alinee exacto como los <a> */
+.header-actions form {
+    display: inline; /* No hace nada si no hay conflicto, pero puede evitar saltos */
+    margin: 0;
+    padding: 0;
+}
+
+.header-actions .icon-btn,
+.header-actions a {
+    display: flex; /* Hace que el ícono se centre vertical y horizontalmente */
+    align-items: center;
+    justify-content: center;
+    height: 1.5em; /* Ajusta si hace falta para emparejar con los <a> */
+    width: 1.5em;  /* Igual que height para que sea cuadrado */
+    margin-left: 17px;
+    font-size: 1.28em;
+    opacity: 0.82;
+    color: #fff;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.16s, color 0.14s;
+    padding: 0;
+    box-sizing: content-box;
+    vertical-align: middle;
+}
+.header-actions .logout-btn {
+    margin-top: 0.5px; /* Sube o baja el botón, ajusta el valor si es necesario */
+}

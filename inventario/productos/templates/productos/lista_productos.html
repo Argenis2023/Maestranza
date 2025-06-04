@@ -28,6 +28,12 @@
                 <a href="{% url 'lista_proveedores' %}" title="Proveedores"><i class="fa-solid fa-truck"></i></a>
                 <a href="{% url 'lista_lotes' %}" title="Ver lotes"><i class="fa-solid fa-boxes-stacked"></i></a>
                 <a href="{% url 'lista_categorias' %}" title="Categorías"><i class="fa-solid fa-tags"></i></a>
+                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="icon-btn logout-btn" title="Cerrar sesión">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </form>
             </div>
         </div>
     </header>

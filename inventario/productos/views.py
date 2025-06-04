@@ -7,12 +7,12 @@ from .models import Categoria, Producto, Proveedor, Movimiento, HistorialPrecio,
 from .forms import MovimientoForm, ProductoForm, ProveedorForm, LoteForm, CategoriaForm
 from django.core.mail import send_mail
 
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Lote
-from .forms import LoteForm
+from django.contrib.auth.decorators import login_required, permission_required
 
 # -------- PRODUCTOS --------
 
+@login_required
+@permission_required('productos.view_producto', raise_exception=True)
 def lista_productos(request):
     query = request.GET.get('q', '')
     productos = Producto.objects.all()
@@ -30,6 +30,8 @@ def lista_productos(request):
         "q": query,
     })
 
+@login_required
+@permission_required('productos.add_producto', raise_exception=True)
 def agregar_producto(request):
     if request.method == 'POST':
         form = ProductoForm(request.POST)
@@ -48,6 +50,8 @@ def agregar_producto(request):
         form = ProductoForm()
     return render(request, 'productos/agregar_producto.html', {'form': form})
 
+@login_required
+@permission_required('productos.change_producto', raise_exception=True)
 def editar_producto(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == 'POST':
@@ -68,6 +72,8 @@ def editar_producto(request, pk):
         form = ProductoForm(instance=producto)
     return render(request, 'productos/editar_producto.html', {'form': form, 'producto': producto})
 
+@login_required
+@permission_required('productos.delete_producto', raise_exception=True)
 def eliminar_producto(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == 'POST':
@@ -78,6 +84,8 @@ def eliminar_producto(request, pk):
 
 # -------- MOVIMIENTOS --------
 
+@login_required
+@permission_required('productos.add_movimiento', raise_exception=True)
 def registrar_movimiento(request):
     if request.method == 'POST':
         form = MovimientoForm(request.POST)
@@ -115,21 +123,27 @@ def registrar_movimiento(request):
                 messages.success(request, "Movimiento registrado correctamente.")
                 return redirect('lista_productos')
             except ValueError as e:
-                messages.error(request, str(e))  # <-- Aquí capturas el error
+                messages.error(request, str(e))
     else:
         form = MovimientoForm()
     return render(request, 'productos/registrar_movimiento.html', {'form': form})
 
+@login_required
+@permission_required('productos.view_movimiento', raise_exception=True)
 def historial_movimientos(request):
     movimientos = Movimiento.objects.select_related('producto', 'usuario').order_by('-fecha')
     return render(request, "productos/historial_movimientos.html", {"movimientos": movimientos})
 
 # -------- PROVEEDORES --------
 
+@login_required
+@permission_required('productos.view_proveedor', raise_exception=True)
 def lista_proveedores(request):
     proveedores = Proveedor.objects.all()
     return render(request, 'productos/lista_proveedores.html', {'proveedores': proveedores})
 
+@login_required
+@permission_required('productos.add_proveedor', raise_exception=True)
 def agregar_proveedor(request):
     if request.method == 'POST':
         form = ProveedorForm(request.POST)
@@ -141,6 +155,8 @@ def agregar_proveedor(request):
         form = ProveedorForm()
     return render(request, 'productos/agregar_proveedor.html', {'form': form})
 
+@login_required
+@permission_required('productos.change_proveedor', raise_exception=True)
 def editar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
     if request.method == 'POST':
@@ -153,6 +169,8 @@ def editar_proveedor(request, pk):
         form = ProveedorForm(instance=proveedor)
     return render(request, 'productos/editar_proveedor.html', {'form': form, 'proveedor': proveedor})
 
+@login_required
+@permission_required('productos.delete_proveedor', raise_exception=True)
 def eliminar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
     if request.method == 'POST':
@@ -163,66 +181,8 @@ def eliminar_proveedor(request, pk):
 
 # -------- LOTES --------
 
-def crear_lote(request):
-    if request.method == 'POST':
-        form = LoteForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Lote agregado correctamente.")
-            return redirect('lista_lotes')
-    else:
-        form = LoteForm()
-    return render(request, 'productos/crear_lote.html', {'form': form})
-
-def lista_lotes(request):
-    hoy = date.today()
-    proximos = hoy + timedelta(days=30)
-    lotes_vencidos = Lote.objects.filter(fecha_vencimiento__lt=hoy)
-    lotes_proximos = Lote.objects.filter(fecha_vencimiento__range=[hoy, proximos])
-    lotes_ok = Lote.objects.filter(fecha_vencimiento__gt=proximos)
-    return render(request, 'productos/lista_lotes.html', {
-        'lotes_vencidos': lotes_vencidos,
-        'lotes_proximos': lotes_proximos,
-        'lotes_ok': lotes_ok,
-    })
-
-# -------- CATEGORIAS --------
-
-def lista_categorias(request):
-    categorias = Categoria.objects.all()
-    return render(request, 'productos/lista_categorias.html', {'categorias': categorias})
-
-def agregar_categoria(request):
-    if request.method == 'POST':
-        form = CategoriaForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Categoría agregada correctamente.")
-            return redirect('lista_categorias')
-    else:
-        form = CategoriaForm()
-    return render(request, 'productos/agregar_categoria.html', {'form': form})
-
-def editar_categoria(request, pk):
-    categoria = get_object_or_404(Categoria, pk=pk)
-    if request.method == 'POST':
-        form = CategoriaForm(request.POST, instance=categoria)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Categoría editada correctamente.")
-            return redirect('lista_categorias')
-    else:
-        form = CategoriaForm(instance=categoria)
-    return render(request, 'productos/editar_categoria.html', {'form': form, 'categoria': categoria})
-
-def eliminar_categoria(request, pk):
-    categoria = get_object_or_404(Categoria, pk=pk)
-    if request.method == 'POST':
-        categoria.delete()
-        messages.success(request, "Categoría eliminada correctamente.")
-        return redirect('lista_categorias')
-    return render(request, 'productos/eliminar_categoria.html', {'categoria': categoria})
-
+@login_required
+@permission_required('productos.add_lote', raise_exception=True)
 def crear_lote(request):
     producto_id = request.GET.get('producto')
     initial = {}
@@ -238,8 +198,22 @@ def crear_lote(request):
         form = LoteForm(initial=initial)
     return render(request, 'productos/crear_lote.html', {'form': form})
 
-  # Debes tener un formulario para Lote
+@login_required
+@permission_required('productos.view_lote', raise_exception=True)
+def lista_lotes(request):
+    hoy = date.today()
+    proximos = hoy + timedelta(days=30)
+    lotes_vencidos = Lote.objects.filter(fecha_vencimiento__lt=hoy)
+    lotes_proximos = Lote.objects.filter(fecha_vencimiento__range=[hoy, proximos])
+    lotes_ok = Lote.objects.filter(fecha_vencimiento__gt=proximos)
+    return render(request, 'productos/lista_lotes.html', {
+        'lotes_vencidos': lotes_vencidos,
+        'lotes_proximos': lotes_proximos,
+        'lotes_ok': lotes_ok,
+    })
 
+@login_required
+@permission_required('productos.change_lote', raise_exception=True)
 def editar_lote(request, pk):
     lote = get_object_or_404(Lote, pk=pk)
     if request.method == 'POST':
@@ -251,9 +225,56 @@ def editar_lote(request, pk):
         form = LoteForm(instance=lote)
     return render(request, 'productos/editar_lote.html', {'form': form, 'lote': lote})
 
+@login_required
+@permission_required('productos.delete_lote', raise_exception=True)
 def eliminar_lote(request, pk):
     lote = get_object_or_404(Lote, pk=pk)
     if request.method == 'POST':
         lote.delete()
         return redirect('lista_lotes')
     return render(request, 'productos/eliminar_lote.html', {'lote': lote})
+
+# -------- CATEGORIAS --------
+
+@login_required
+@permission_required('productos.view_categoria', raise_exception=True)
+def lista_categorias(request):
+    categorias = Categoria.objects.all()
+    return render(request, 'productos/lista_categorias.html', {'categorias': categorias})
+
+@login_required
+@permission_required('productos.add_categoria', raise_exception=True)
+def agregar_categoria(request):
+    if request.method == 'POST':
+        form = CategoriaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Categoría agregada correctamente.")
+            return redirect('lista_categorias')
+    else:
+        form = CategoriaForm()
+    return render(request, 'productos/agregar_categoria.html', {'form': form})
+
+@login_required
+@permission_required('productos.change_categoria', raise_exception=True)
+def editar_categoria(request, pk):
+    categoria = get_object_or_404(Categoria, pk=pk)
+    if request.method == 'POST':
+        form = CategoriaForm(request.POST, instance=categoria)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Categoría editada correctamente.")
+            return redirect('lista_categorias')
+    else:
+        form = CategoriaForm(instance=categoria)
+    return render(request, 'productos/editar_categoria.html', {'form': form, 'categoria': categoria})
+
+@login_required
+@permission_required('productos.delete_categoria', raise_exception=True)
+def eliminar_categoria(request, pk):
+    categoria = get_object_or_404(Categoria, pk=pk)
+    if request.method == 'POST':
+        categoria.delete()
+        messages.success(request, "Categoría eliminada correctamente.")
+        return redirect('lista_categorias')
+    return render(request, 'productos/eliminar_categoria.html', {'categoria': categoria})
