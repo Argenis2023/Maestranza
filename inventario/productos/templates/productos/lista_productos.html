@@ -22,12 +22,16 @@
                     <a href="." class="limpiar-busqueda"><i class="fa-solid fa-xmark"></i></a>
                 {% endif %}
             </form>
+            <div class="header-user-info" style="color:#fff; font-weight:500; margin-left:20px;">
+                <i class="fa-solid fa-user"></i> {{ request.user.username }}
+            </div>
             <div class="header-actions">
                 <a href="{% url 'registrar_movimiento' %}" title="Registrar movimiento"><i class="fa-solid fa-right-left"></i></a>
                 <a href="{% url 'historial_movimientos' %}" title="Ver historial"><i class="fa-solid fa-clock-rotate-left"></i></a>
                 <a href="{% url 'lista_proveedores' %}" title="Proveedores"><i class="fa-solid fa-truck"></i></a>
                 <a href="{% url 'lista_lotes' %}" title="Ver lotes"><i class="fa-solid fa-boxes-stacked"></i></a>
                 <a href="{% url 'lista_categorias' %}" title="Categorías"><i class="fa-solid fa-tags"></i></a>
+                <a href="{% url 'usuarios' %}" title="Usuarios"><i class="fa-solid fa-users"></i></a>
                 <form action="{% url 'logout' %}" method="post" style="display:inline;">
                     {% csrf_token %}
                     <button type="submit" class="icon-btn logout-btn" title="Cerrar sesión">

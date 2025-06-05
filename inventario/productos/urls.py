@@ -4,7 +4,7 @@ from .views import (
     agregar_producto, editar_producto, eliminar_producto,
     lista_proveedores, agregar_proveedor, editar_proveedor, eliminar_proveedor,
     lista_categorias, agregar_categoria, editar_categoria, eliminar_categoria,
-    lista_lotes, crear_lote, editar_lote, eliminar_lote
+    lista_lotes, crear_lote, editar_lote, eliminar_lote, gestionar_usuarios
 )
 
 urlpatterns = [
@@ -26,4 +26,6 @@ urlpatterns = [
     path('lotes/crear/', crear_lote, name='crear_lote'),
     path('lotes/editar/<int:pk>/', editar_lote, name='editar_lote'),
     path('lotes/eliminar/<int:pk>/', eliminar_lote, name='eliminar_lote'),
+    path('usuarios/', gestionar_usuarios, name='usuarios'),  # Solo UNA ruta, con el name 'usuarios'
 ]
+

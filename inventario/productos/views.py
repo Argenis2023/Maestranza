@@ -8,6 +8,8 @@ from .forms import MovimientoForm, ProductoForm, ProveedorForm, LoteForm, Catego
 from django.core.mail import send_mail
 
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.models import User, Group
+from django import forms
 
 # -------- PRODUCTOS --------
 
@@ -94,7 +96,6 @@ def registrar_movimiento(request):
             movimiento.usuario = request.user
 
             try:
-                # SOLO si es salida, descuenta del lote seleccionado
                 if movimiento.tipo == 'OUT':
                     lote = form.cleaned_data['lote']
                     if lote and movimiento.cantidad > lote.cantidad:
@@ -278,3 +279,60 @@ def eliminar_categoria(request, pk):
         messages.success(request, "Categoría eliminada correctamente.")
         return redirect('lista_categorias')
     return render(request, 'productos/eliminar_categoria.html', {'categoria': categoria})
+
+# -------- GESTIÓN DE USUARIOS --------
+
+class UserForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput, required=False)
+    group = forms.ModelChoiceField(queryset=Group.objects.all(), required=True, label='Grupo')
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password', 'group']
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        pwd = self.cleaned_data["password"]
+        if pwd:
+            user.set_password(pwd)
+        if commit:
+            user.save()
+            user.groups.clear()
+            user.groups.add(self.cleaned_data["group"])
+        return user
+
+@login_required
+def gestionar_usuarios(request):
+    usuarios = User.objects.all().order_by('username')
+    grupos = Group.objects.all()
+    if request.method == 'POST':
+        # Crear o editar usuario
+        if 'save_user' in request.POST:
+            if request.POST.get('user_id'):
+                usuario = get_object_or_404(User, pk=request.POST['user_id'])
+                form = UserForm(request.POST, instance=usuario)
+            else:
+                form = UserForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Usuario guardado correctamente.')
+                return redirect('usuarios')  # IMPORTANTE: nombre de la url en urls.py
+            else:
+                messages.error(request, 'Corrige los errores.')
+        # Eliminar usuario
+        elif 'delete_user' in request.POST:
+            usuario = get_object_or_404(User, pk=request.POST['delete_user'])
+            if usuario.is_superuser:
+                messages.error(request, 'No puedes eliminar al superusuario.')
+            else:
+                usuario.delete()
+                messages.success(request, 'Usuario eliminado.')
+            return redirect('usuarios')
+    else:
+        form = UserForm()
+
+    return render(request, 'usuarios/usuarios.html', {
+        'usuarios': usuarios,
+        'grupos': grupos,
+        'form': form,
+    })
