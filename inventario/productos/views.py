@@ -11,6 +11,12 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Group
 from django import forms
 
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+from xhtml2pdf import pisa
+from django.utils import timezone
+from datetime import timedelta
+
 # -------- PRODUCTOS --------
 
 @login_required
@@ -336,3 +342,38 @@ def gestionar_usuarios(request):
         'grupos': grupos,
         'form': form,
     })
+
+@login_required
+@permission_required('productos.view_producto', raise_exception=True)
+def exportar_inventario_pdf(request):
+    productos = Producto.objects.all().order_by('nombre')
+    now = timezone.now()
+    from .models import Lote
+    proximos = now.date() + timedelta(days=30)
+    lotes_proximos_queryset = Lote.objects.filter(fecha_vencimiento__range=[now.date(), proximos])
+
+    # Crea una lista con los días para vencer calculados
+    lotes_proximos = []
+    for lote in lotes_proximos_queryset:
+        dias_para_vencer = (lote.fecha_vencimiento - now.date()).days
+        lotes_proximos.append({
+            'producto': lote.producto,
+            'numero_lote': lote.numero_lote,
+            'fecha_vencimiento': lote.fecha_vencimiento,
+            'cantidad': lote.cantidad,
+            'proveedor': lote.proveedor,
+            'dias_para_vencer': dias_para_vencer,
+        })
+
+    html_string = render_to_string('productos/reporte_inventario_pdf.html', {
+        'productos': productos,
+        'lotes_proximos': lotes_proximos,
+        'usuario': request.user,
+        'now': now,
+    })
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="reporte_inventario.pdf"'
+    pisa_status = pisa.CreatePDF(html_string, dest=response)
+    if pisa_status.err:
+        return HttpResponse('Error al generar el PDF', status=500)
+    return response

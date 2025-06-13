@@ -1,4 +1,5 @@
 from django.urls import path
+from .views import exportar_inventario_pdf
 from .views import (
     lista_productos, registrar_movimiento, historial_movimientos,
     agregar_producto, editar_producto, eliminar_producto,
@@ -27,5 +28,6 @@ urlpatterns = [
     path('lotes/editar/<int:pk>/', editar_lote, name='editar_lote'),
     path('lotes/eliminar/<int:pk>/', eliminar_lote, name='eliminar_lote'),
     path('usuarios/', gestionar_usuarios, name='usuarios'),  # Solo UNA ruta, con el name 'usuarios'
+    path('exportar-inventario-pdf/', exportar_inventario_pdf, name='exportar_inventario_pdf'),
 ]
 

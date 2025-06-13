@@ -62,7 +62,8 @@
 
             <!-- BOTÓN AGREGAR PRODUCTO -->
             <div class="inventario-actions">
-                <a href="{% url 'agregar_producto' %}" class="btn-moderno"><i class="fa-solid fa-plus"></i> Agregar Producto</a>
+                <a href="{% url 'agregar_producto' %}" class="btn-moderno"><i class="fa-solid fa-plus"></i> Agregar Producto</a> 
+                <a href="{% url 'exportar_inventario_pdf' %}" class="btn-moderno" target="_blank"><i class="fa-solid fa-file-pdf"></i> Exportar Inventario a PDF</a>
             </div>
 
             <!-- GRID DE PRODUCTOS -->

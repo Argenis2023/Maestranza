@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Inventario</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f7fafd;
+            color: #22334d;
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+        }
+        .banner {
+            background: #1976d2;
+            color: #fff;
+            padding: 18px 0 8px 0;
+            text-align: center;
+            border-radius: 0 0 24px 24px;
+            box-shadow: 0 2px 9px #1a396a18;
+        }
+        .banner-title {
+            font-size: 1.62em;
+            letter-spacing: 0.5px;
+            margin-bottom: 0;
+            font-weight: 700;
+        }
+        .container {
+            background: #fff;
+            border-radius: 15px;
+            margin: 18px auto 0 auto;
+            padding: 22px 22px 16px 22px;
+            max-width: 880px;
+            box-shadow: 0 3px 18px #2275e61a;
+        }
+        .fecha {
+            color: #1976d2;
+            margin-bottom: 5px;
+            font-size: 11px;
+        }
+        .section-title {
+            color: #1976d2;
+            margin-top: 10px;      /* más compacto */
+            margin-bottom: 3px;    /* más compacto */
+            font-size: 13.5px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 7px;   /* más compacto */
+            background: #f7fafd;
+            border-radius: 7px;
+            overflow: hidden;
+        }
+        th, td {
+            border: 1px solid #e1e9f0;
+            padding: 6px 3px;
+            text-align: left;
+            font-size: 11px;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+        th {
+            background: #1976d2;
+            color: #fff;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            padding-top: 7px;
+            padding-bottom: 7px;
+        }
+        tr:nth-child(even) {
+            background: #eef3f8;
+        }
+        tr:last-child td {
+            border-bottom: 1.2px solid #1976d2;
+        }
+        .critico {
+            color: #e74c3c;
+            font-weight: bold;
+            background: #fff6f6 !important;
+        }
+        .proximov {
+            background: #fffbe6 !important;
+            color: #d9a600 !important;
+        }
+        .precio {
+            color: #229c45;
+            font-weight: bold;
+        }
+        .stock {
+            font-weight: 700;
+        }
+        .min {
+            color: #888;
+            font-size: 10px;
+        }
+        .proveedor {
+            color: #1976d2;
+        }
+        .footer {
+            margin-top: 22px;
+            font-size: 10.2px;
+            color: #828a9a;
+            text-align: right;
+            border-top: 1px solid #dde2ea;
+            padding-top: 7px;
+        }
+        /* Sombra sutil para tablas */
+        table {
+            box-shadow: 0 1px 5px #1976d213;
+        }
+        /* Ajusta márgenes superiores de la primera sección */
+        .container > .section-title:first-of-type {
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+        <div class="banner-title">Reporte de Estado de Inventario</div>
+    </div>
+    <div class="container">
+        <div class="fecha">
+            Generado por: <b>{{ usuario.username }}</b> |
+            Fecha y hora: {{ now|date:"d/m/Y H:i" }}
+        </div>
+
+        <!-- Productos en stock crítico -->
+        <div class="section-title" style="color:#e74c3c">Productos en stock crítico</div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:23%;">Nombre</th>
+                    <th style="width:11%;">Stock</th>
+                    <th style="width:11%;">Mín.</th>
+                    <th style="width:17%;">Ubicación</th>
+                    <th style="width:30%;">Proveedor</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% with found=False %}
+            {% for p in productos %}
+                {% if p.stock <= p.stock_minimo %}
+                {% if not found %}{% with found=True %}{% endwith %}{% endif %}
+                <tr class="critico">
+                    <td>{{ p.nombre }}</td>
+                    <td class="stock">{{ p.stock }}</td>
+                    <td class="min">{{ p.stock_minimo }}</td>
+                    <td>{{ p.ubicacion }}</td>
+                    <td class="proveedor">
+                        {% for prov in p.proveedores.all %}
+                            {{ prov.nombre }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}No asignado{% endfor %}
+                    </td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            {% if not found %}
+                <tr><td colspan="5">No hay productos en stock crítico.</td></tr>
+            {% endif %}
+            {% endwith %}
+            </tbody>
+        </table>
+
+        <!-- Lotes por vencer -->
+        <div class="section-title" style="color:#d9a600">Lotes por vencer en los próximos 30 días</div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:24%;">Producto</th>
+                    <th style="width:13%;">Lote</th>
+                    <th style="width:16%;">Vencimiento</th>
+                    <th style="width:10%;">Días</th>
+                    <th style="width:12%;">Cantidad</th>
+                    <th style="width:25%;">Proveedor</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if lotes_proximos %}
+                {% for lote in lotes_proximos %}
+                    <tr class="proximov">
+                        <td>{{ lote.producto.nombre }}</td>
+                        <td>{{ lote.numero_lote }}</td>
+                        <td>{{ lote.fecha_vencimiento|date:"d/m/Y" }}</td>
+                        <td>{{ lote.dias_para_vencer }}</td>
+                        <td>{{ lote.cantidad }}</td>
+                        <td class="proveedor">{{ lote.proveedor.nombre|default:"Sin proveedor" }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr><td colspan="6">No hay lotes próximos a vencer.</td></tr>
+            {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Inventario General -->
+        <div class="section-title">Inventario general</div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:17%;">Nombre</th>
+                    <th style="width:11%;">Serie</th>
+                    <th style="width:13%;">Categoría</th>
+                    <th style="width:13%;">Ubicación</th>
+                    <th style="width:8%;">Stock</th>
+                    <th style="width:8%;">Mín.</th>
+                    <th style="width:13%;">Precio</th>
+                    <th style="width:17%;">Proveedor</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.numero_serie }}</td>
+                    <td>{{ producto.categoria.nombre|default:"Sin categoría" }}</td>
+                    <td>{{ producto.ubicacion }}</td>
+                    <td class="stock">{{ producto.stock }}</td>
+                    <td class="min">{{ producto.stock_minimo }}</td>
+                    <td>
+                        {% if producto.precio_actual %}
+                            <span class="precio">${{ producto.precio_actual }}</span>
+                        {% else %}
+                            Sin precio
+                        {% endif %}
+                    </td>
+                    <td class="proveedor">
+                        {% for prov in producto.proveedores.all %}
+                            {{ prov.nombre }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}No asignado{% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pie de página -->
+        <div class="footer">
+            Reporte generado automáticamente por el sistema de inventario &mdash; {{ now|date:"d/m/Y H:i" }}
+        </div>
+    </div>
+</body>
+</html>
